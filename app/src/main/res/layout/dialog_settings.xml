@@ -13,27 +13,35 @@
         android:textStyle="bold"
         android:layout_marginBottom="16dp" />
 
-    <RadioGroup
-        android:id="@+id/modeRadioGroup"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingVertical="8dp">
 
-        <RadioButton
-            android:id="@+id/radioTest"
-            android:layout_width="match_parent"
+        <TextView
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:text="@string/mode_test"
             android:textSize="14sp"
-            android:layout_marginBottom="8dp" />
+            android:layout_marginEnd="16dp" />
 
-        <RadioButton
-            android:id="@+id/radioMuseum"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/mode_museum"
-            android:textSize="14sp" />
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/modeSwitch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
 
-    </RadioGroup>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/modeStatusText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="12sp"
+        android:textColor="?android:attr/textColorSecondary"
+        android:layout_marginTop="8dp"
+        android:gravity="center" />
 
 </LinearLayout>

@@ -4,15 +4,19 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
 import android.content.SharedPreferences
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import android.view.WindowManager
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import android.widget.RadioButton
+import android.widget.TextView
+import androidx.appcompat.widget.SwitchCompat
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.sumuppaymentapp.databinding.ActivityMainBinding
@@ -37,18 +41,18 @@ class MainActivity : AppCompatActivity() {
     // Chiave affiliato SumUp - SOSTITUIRE CON LA VOSTRA CHIAVE
     private val AFFILIATE_KEY = "sup_afk_zQ4j4OTduBWxUO7g32DQkVkfdgurbTQy"
 
-    // Request code per il pagamento
-    private val PAYMENT_REQUEST_CODE = 1
-    
     // Gson per il parsing JSON
     private val gson = Gson()
     
     // Dati di pagamento ricevuti dalla webapp
     private var currentPaymentData: PaymentData? = null
     
+    // Request code per il pagamento
+    private val PAYMENT_REQUEST_CODE = 1
+    
     // Gestione modalità app
     private lateinit var sharedPreferences: SharedPreferences
-    private var isMuseumMode: Boolean = false // false = test mode, true = museum mode
+    private var isActiveMode: Boolean = true // true = active (pagamenti funzionanti), false = test (pagamenti disconnessi)
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,25 +65,35 @@ class MainActivity : AppCompatActivity() {
 
         // Inizializza SharedPreferences
         sharedPreferences = getSharedPreferences("app_settings", MODE_PRIVATE)
-        isMuseumMode = sharedPreferences.getBoolean("museum_mode", false) // Default: test mode
+        isActiveMode = sharedPreferences.getBoolean("active_mode", true) // Default: active mode
 
         setupWebView()
         setupUI()
     }
     
     private fun hideSystemUI() {
-        // Hide the status bar and navigation bar
-        window.decorView.systemUiVisibility = (
-            View.SYSTEM_UI_FLAG_FULLSCREEN
-            or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-            or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-            or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-            or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-            or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-        )
-        
         // Keep screen on
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        
+        // Hide the status bar and navigation bar using modern API
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            // Android 11+ (API 30+) - usa WindowInsetsControllerCompat
+            WindowInsetsControllerCompat(window, window.decorView).let { controller ->
+                controller.hide(WindowInsetsCompat.Type.statusBars() or WindowInsetsCompat.Type.navigationBars())
+                controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            }
+        } else {
+            // Android 10 e precedenti - usa API legacy
+            @Suppress("DEPRECATION")
+            window.decorView.systemUiVisibility = (
+                View.SYSTEM_UI_FLAG_FULLSCREEN
+                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+            )
+        }
     }
     
     override fun onWindowFocusChanged(hasFocus: Boolean) {
@@ -127,14 +141,14 @@ class MainActivity : AppCompatActivity() {
     }
     
     private fun makePayment() {
-        // Controlla se l'app è in modalità museo
-        if (!isMuseumMode) {
+        // Controlla se l'app è in modalità test
+        if (!isActiveMode) {
             Log.d("App", "Modalità TEST: Ignorando richiesta di pagamento")
             // In modalità test, non fare nulla (senza popup)
             return
         }
         
-        // Modalità MUSEO: comportamento originale
+        // Modalità ACTIVE: comportamento normale con pagamenti
         makePaymentOriginal()
     }
     
@@ -176,7 +190,7 @@ class MainActivity : AppCompatActivity() {
                 .skipSuccessScreen()
                 .build()
             
-            // Avvia il pagamento
+            // Avvia il pagamento (SumUpAPI usa startActivityForResult internamente)
             SumUpAPI.checkout(this, payment, PAYMENT_REQUEST_CODE)
             
         } catch (e: Exception) {
@@ -185,6 +199,7 @@ class MainActivity : AppCompatActivity() {
     }
     
     
+    @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         
@@ -234,14 +249,16 @@ class MainActivity : AppCompatActivity() {
     
     private fun showSettingsDialog() {
         val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_settings, null)
-        val radioTest = dialogView.findViewById<RadioButton>(R.id.radioTest)
-        val radioMuseum = dialogView.findViewById<RadioButton>(R.id.radioMuseum)
+        val modeSwitch = dialogView.findViewById<SwitchCompat>(R.id.modeSwitch)
+        val modeStatusText = dialogView.findViewById<TextView>(R.id.modeStatusText)
         
-        // Imposta la modalità corrente
-        if (isMuseumMode) {
-            radioMuseum.isChecked = true
-        } else {
-            radioTest.isChecked = true
+        // Imposta lo stato iniziale dello switch
+        modeSwitch.isChecked = isActiveMode
+        updateModeStatusText(modeStatusText, isActiveMode)
+        
+        // Aggiorna il testo quando lo switch cambia
+        modeSwitch.setOnCheckedChangeListener { _, isChecked ->
+            updateModeStatusText(modeStatusText, isChecked)
         }
         
         val dialog = AlertDialog.Builder(this)
@@ -249,20 +266,28 @@ class MainActivity : AppCompatActivity() {
             .setTitle(getString(R.string.settings_title))
             .setPositiveButton(getString(R.string.save_settings)) { _, _ ->
                 // Salva le impostazioni
-                val newMuseumMode = radioMuseum.isChecked
+                val newActiveMode = modeSwitch.isChecked
                 sharedPreferences.edit()
-                    .putBoolean("museum_mode", newMuseumMode)
+                    .putBoolean("active_mode", newActiveMode)
                     .apply()
                 
-                isMuseumMode = newMuseumMode
+                isActiveMode = newActiveMode
                 
-                val modeText = if (isMuseumMode) "Museo" else "Test"
+                val modeText = if (isActiveMode) "Attivo" else "Test"
                 Log.d("App", "Modalità cambiata: $modeText")
             }
             .setNegativeButton(getString(R.string.cancel_settings), null)
             .create()
         
         dialog.show()
+    }
+    
+    private fun updateModeStatusText(textView: TextView, isActive: Boolean) {
+        textView.text = if (isActive) {
+            getString(R.string.mode_active)
+        } else {
+            getString(R.string.mode_test)
+        }
     }
     
     // Classe per ricevere dati dalla webapp tramite JavaScript
@@ -275,12 +300,12 @@ class MainActivity : AppCompatActivity() {
                 
                 // Log per debug
                 Log.d("WebApp", "Ricevuti dati pagamento: $paymentData")
-                Log.d("WebApp", "Modalità attuale: ${if (isMuseumMode) "Museo" else "Test"}")
+                Log.d("WebApp", "Modalità attuale: ${if (isActiveMode) "Attivo" else "Test"}")
                 
                 // Salva i dati di pagamento
                 currentPaymentData = paymentData
                 
-                // Avvia il pagamento (con controllo modalità interno)
+                // Avvia il pagamento
                 runOnUiThread {
                     makePayment()
                 }
@@ -288,6 +313,19 @@ class MainActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 Log.e("WebApp", "Errore nel parsing dati pagamento", e)
             }
+        }
+        
+        /**
+         * Metodo JavaScript interface per ottenere la modalità corrente dell'app
+         * La web app può chiamare: Android.getAppMode()
+         * @return JSON string con la modalità corrente (active o test)
+         */
+        @JavascriptInterface
+        fun getAppMode(): String {
+            return gson.toJson(mapOf(
+                "mode" to (if (isActiveMode) "active" else "test"),
+                "timestamp" to System.currentTimeMillis()
+            ))
         }
     }
     

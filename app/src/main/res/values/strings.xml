@@ -10,10 +10,9 @@
     <string name="affiliate_key_error">Chiave affiliato non configurata</string>
     <string name="sumup_not_installed">SumUp non è installato</string>
     <string name="settings_title">Impostazioni App</string>
-    <string name="mode_title">Modalità App</string>
-    <string name="mode_test">Test (Ignora pagamenti)</string>
-    <string name="mode_museum">Museo (Pagamenti attivi)</string>
-    <string name="current_mode">Modalità attuale: %s</string>
+    <string name="mode_title">Modalità Totem</string>
+    <string name="mode_active">Attivo (Pagamenti funzionanti)</string>
+    <string name="mode_test">Test (Pagamenti disconnessi per developing)</string>
     <string name="save_settings">Salva</string>
     <string name="cancel_settings">Annulla</string>
 </resources>

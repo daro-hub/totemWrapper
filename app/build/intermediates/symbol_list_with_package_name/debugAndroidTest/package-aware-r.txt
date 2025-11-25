@@ -1,3 +1,0 @@
-com.example.sumuppaymentapp.test
-style WhiteBackgroundDialogTheme
-style WhiteBackgroundTheme

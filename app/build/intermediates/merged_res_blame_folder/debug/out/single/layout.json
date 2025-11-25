@@ -1,0 +1,10 @@
+[
+    {
+        "merged": "com.example.sumuppaymentapp-mergeDebugResources-32:/layout/activity_main.xml",
+        "source": "com.example.sumuppaymentapp-main-35:/layout/activity_main.xml"
+    },
+    {
+        "merged": "com.example.sumuppaymentapp-mergeDebugResources-32:/layout/dialog_settings.xml",
+        "source": "com.example.sumuppaymentapp-main-35:/layout/dialog_settings.xml"
+    }
+]

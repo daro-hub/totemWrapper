@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Totem Payment App</string>
+    <string name="make_payment">💳 Effettua Pagamento</string>
+    <string name="initial_status">Sito Totem caricato</string>
+    <string name="payment_title">Pagamento Totem</string>
+    <string name="payment_success">Pagamento completato con successo!</string>
+    <string name="payment_error">Errore durante il pagamento</string>
+    <string name="payment_cancelled">Pagamento annullato</string>
+    <string name="affiliate_key_error">Chiave affiliato non configurata</string>
+    <string name="sumup_not_installed">SumUp non è installato</string>
+    <string name="settings_title">Impostazioni App</string>
+    <string name="mode_title">Modalità App</string>
+    <string name="mode_test">Test (Ignora pagamenti)</string>
+    <string name="mode_museum">Museo (Pagamenti attivi)</string>
+    <string name="current_mode">Modalità attuale: %s</string>
+    <string name="save_settings">Salva</string>
+    <string name="cancel_settings">Annulla</string>
+</resources>

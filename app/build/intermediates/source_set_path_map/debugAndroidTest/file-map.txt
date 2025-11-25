@@ -1,0 +1,7 @@
+com.example.sumuppaymentapp.test.app-core-1.5.0-0 C:\Users\darin\.gradle\caches\8.13\transforms\1e7f73a98dbe0ade74e36ed29d10e9b8\transformed\core-1.5.0\res
+com.example.sumuppaymentapp.test.app-annotation-experimental-1.3.0-1 C:\Users\darin\.gradle\caches\8.13\transforms\8cf865701a3bc1df603c01ba0464e251\transformed\annotation-experimental-1.3.0\res
+com.example.sumuppaymentapp.test.app-androidTest-2 C:\Users\darin\OneDrive\Desktop\dev\AmuseApp\totem\androidTest\app\build\generated\res\resValues\androidTest\debug
+com.example.sumuppaymentapp.test.app-androidTest-3 C:\Users\darin\OneDrive\Desktop\dev\AmuseApp\totem\androidTest\app\build\generated\res\rs\androidTest\debug
+com.example.sumuppaymentapp.test.app-mergeDebugAndroidTestResources-4 C:\Users\darin\OneDrive\Desktop\dev\AmuseApp\totem\androidTest\app\build\intermediates\incremental\debugAndroidTest\mergeDebugAndroidTestResources\merged.dir
+com.example.sumuppaymentapp.test.app-mergeDebugAndroidTestResources-5 C:\Users\darin\OneDrive\Desktop\dev\AmuseApp\totem\androidTest\app\build\intermediates\incremental\debugAndroidTest\mergeDebugAndroidTestResources\stripped.dir
+com.example.sumuppaymentapp.test.app-merged_res-6 C:\Users\darin\OneDrive\Desktop\dev\AmuseApp\totem\androidTest\app\build\intermediates\merged_res\debugAndroidTest
